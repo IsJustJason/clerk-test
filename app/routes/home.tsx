@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -55,5 +56,6 @@ export default function Home() {
   return (<>
     <div>{testResponse}</div>
     <Welcome />
+    <Link to="/test-page">Test Page</Link>
   </>);
 }
