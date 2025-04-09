@@ -21,13 +21,7 @@ func init() {
 }
 
 func main() {
-	// clerk.SetKey(os.Getenv("CLERK_SECRET"))
-	clerkSecret := os.Getenv("CLERK_SECRET_KEY")
-	if clerkSecret == "" {
-		log.Fatal("CLERK_SECRET_KEY is not set!")
-	}
-	log.Println("Clerk secret loaded.")
-	clerk.SetKey(clerkSecret)
+	clerk.SetKey(os.Getenv("CLERK_SECRET"))
 
 	mux := http.NewServeMux()
 
@@ -69,6 +63,8 @@ func corsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
 	}
 }
 
+// updated the test_handler function to return a JSON response
+// and handle the case when the session claims are not found
 func test_handler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := clerk.SessionClaimsFromContext(r.Context())
 	if !ok {

@@ -43,7 +43,7 @@ export default function Home() {
           throw new Error(`Error fetching games: ${response.statusText}`);
         }
 
-        // Check if the response is JSON
+        // Check if the response is JSON and parse it
         const data = await response.json();
         if (data?.message) {
           setTestResponse(data.message);
