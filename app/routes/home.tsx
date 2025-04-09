@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
@@ -16,7 +16,9 @@ export default function Home() {
   const [testResponse, setTestResponse] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSignedIn) {
+    // This ensures that the fetch only happens once Clerk is fully loaded *and* the user is signed in.
+    if (!isSignedIn || !isLoaded) {
+      console.log("User is not signed in or auth is not loaded");
       return;
     }
 
@@ -30,20 +32,21 @@ export default function Home() {
         }
 
         const response = await fetch(`http://localhost:8080/api/test`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${clerkToken}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${clerkToken}`,
           },
         });
-        
+
         if (!response.ok) {
           throw new Error(`Error fetching games: ${response.statusText}`);
         }
-        
+
+        // Check if the response is JSON
         const data = await response.json();
-        if (data) {
-          setTestResponse(data);
+        if (data?.message) {
+          setTestResponse(data.message);
         }
       } catch (err) {
         console.error("Failed to fetch test:", err);
@@ -53,9 +56,11 @@ export default function Home() {
     fetchTest();
   }, [isLoaded]);
 
-  return (<>
-    <div>{testResponse}</div>
-    <Welcome />
-    <Link to="/test-page">Test Page</Link>
-  </>);
+  return (
+    <>
+      <div>{testResponse}</div>
+      <Welcome />
+      <Link to="/test-page">Test Page</Link>
+    </>
+  );
 }

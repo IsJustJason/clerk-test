@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"encoding/json"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	clerkhttp "github.com/clerk/clerk-sdk-go/v2/http"
@@ -20,7 +21,13 @@ func init() {
 }
 
 func main() {
-	clerk.SetKey(os.Getenv("CLERK_SECRET"))
+	// clerk.SetKey(os.Getenv("CLERK_SECRET"))
+	clerkSecret := os.Getenv("CLERK_SECRET_KEY")
+	if clerkSecret == "" {
+		log.Fatal("CLERK_SECRET_KEY is not set!")
+	}
+	log.Println("Clerk secret loaded.")
+	clerk.SetKey(clerkSecret)
 
 	mux := http.NewServeMux()
 
@@ -66,9 +73,16 @@ func test_handler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := clerk.SessionClaimsFromContext(r.Context())
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
 		return
 	}
 
+	response := map[string]string{
+		"message": fmt.Sprintf("Hello, %s!", claims.Subject),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Hello, %s!", claims.Subject)))
+	json.NewEncoder(w).Encode(response)
 }
+
