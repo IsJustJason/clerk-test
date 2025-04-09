@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"encoding/json"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 	clerkhttp "github.com/clerk/clerk-sdk-go/v2/http"
@@ -62,13 +63,22 @@ func corsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
 	}
 }
 
+// updated the test_handler function to return a JSON response
+// and handle the case when the session claims are not found
 func test_handler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := clerk.SessionClaimsFromContext(r.Context())
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
 		return
 	}
 
+	response := map[string]string{
+		"message": fmt.Sprintf("Hello, %s!", claims.Subject),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Hello, %s!", claims.Subject)))
+	json.NewEncoder(w).Encode(response)
 }
+
