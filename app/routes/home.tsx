@@ -16,7 +16,6 @@ export default function Home() {
   const [testResponse, setTestResponse] = useState<string | null>(null);
 
   useEffect(() => {
-    // This ensures that the fetch only happens once Clerk is fully loaded *and* the user is signed in.
     if (!isSignedIn || !isLoaded) {
       console.log("User is not signed in or auth is not loaded");
       return;
@@ -43,7 +42,6 @@ export default function Home() {
           throw new Error(`Error fetching games: ${response.statusText}`);
         }
 
-        // Check if the response is JSON and parse it
         const data = await response.json();
         if (data?.message) {
           setTestResponse(data.message);
@@ -54,11 +52,18 @@ export default function Home() {
     };
 
     fetchTest();
-  }, [isLoaded]);
+  }, [isSignedIn, isLoaded]);
+
+  // Clear the message if the user signs out
+  useEffect(() => {
+    if (!isSignedIn) {
+      setTestResponse(null);
+    }
+  }, [isSignedIn]);
 
   return (
     <>
-      <div>{testResponse}</div>
+      {isSignedIn && testResponse && <div>{testResponse}</div>}
       <Welcome />
       <Link to="/test-page">Test Page</Link>
     </>
