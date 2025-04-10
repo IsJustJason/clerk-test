@@ -21,7 +21,12 @@ func init() {
 }
 
 func main() {
-	clerk.SetKey(os.Getenv("CLERK_SECRET"))
+	clerkSecret := os.Getenv("CLERK_SECRET_KEY")
+	if clerkSecret == "" {
+		log.Fatal("CLERK_SECRET_KEY is not set!")
+	}
+	log.Println("Clerk secret loaded.")
+	clerk.SetKey(clerkSecret)
 
 	mux := http.NewServeMux()
 
